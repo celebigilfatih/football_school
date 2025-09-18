@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Node.js 18 Alpine imajını kullan
 FROM node:18-alpine AS base
 
@@ -45,18 +44,3 @@ EXPOSE 3000
 
 # Uygulamayı başlat
 CMD ["npm", "start"]
-=======
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["npm", "run", "dev"]
->>>>>>> ef66ddb8bb285b77ca6d7ed6a01282eb330c466b

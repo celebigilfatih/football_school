@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-<<<<<<< HEAD
   # MongoDB Database
   mongodb:
     image: mongo:7.0
@@ -17,22 +16,10 @@ services:
       - football_school_network
 
   # Backend Service
-=======
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-network
-
->>>>>>> ef66ddb8bb285b77ca6d7ed6a01282eb330c466b
   backend:
     build:
-      context: ./backend
+      context: "./backend"
       dockerfile: Dockerfile
-<<<<<<< HEAD
     container_name: football_school_backend
     restart: unless-stopped
     ports:
@@ -50,27 +37,10 @@ services:
       - football_school_network
 
   # Frontend Service
-=======
-    ports:
-      - "5000:5000"
-    environment:
-      - MONGODB_URI=mongodb://mongodb:27017/football_school
-      - JWT_SECRET=your-super-secret-jwt-key-here
-      - NODE_ENV=development
-    depends_on:
-      - mongodb
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    networks:
-      - app-network
-
->>>>>>> ef66ddb8bb285b77ca6d7ed6a01282eb330c466b
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-<<<<<<< HEAD
     container_name: football_school_frontend
     restart: unless-stopped
     ports:
@@ -89,23 +59,3 @@ volumes:
 networks:
   football_school_network:
     driver: bridge
-=======
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  mongodb_data:
->>>>>>> ef66ddb8bb285b77ca6d7ed6a01282eb330c466b

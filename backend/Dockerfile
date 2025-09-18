@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Node.js 18 Alpine imajını kullan
 FROM node:18-alpine
 
@@ -21,18 +20,4 @@ RUN mkdir -p uploads/groups
 EXPOSE 5000
 
 # Uygulamayı başlat
-=======
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
-EXPOSE 5000
-
->>>>>>> ef66ddb8bb285b77ca6d7ed6a01282eb330c466b
 CMD ["npm", "start"]
