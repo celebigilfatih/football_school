@@ -72,7 +72,7 @@ const startServer = async () => {
       fs.mkdirSync(groupsUploadsDir);
     }
 
-    app.listen(PORT, 'localhost', () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server ${PORT} portunda çalışıyor`);
       console.log(`API erişim adresi: http://localhost:${PORT}/api`);
       console.log(`Uploads klasörü: ${uploadsDir}`);
@@ -83,4 +83,4 @@ const startServer = async () => {
   }
 };
 
-startServer(); 
+startServer();
