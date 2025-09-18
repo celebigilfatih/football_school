@@ -10,10 +10,10 @@ const createAdmin = async () => {
 
     // Varsayılan admin bilgileri
     const adminData = {
-      username: 'admin',
-      password: 'admin123',
-      name: 'Sistem Yöneticisi',
-      email: 'admin@footballschool.com',
+      username: 'ounal',
+      password: 'ou+-2018',
+      name: 'Ounal Yönetici',
+      email: 'ounal@footballschool.com',
       role: 'admin',
       isActive: true
     };
@@ -39,4 +39,4 @@ const createAdmin = async () => {
   }
 };
 
-createAdmin(); 
+createAdmin();
