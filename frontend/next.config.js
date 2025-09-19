@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'futbol.webmahsul.com.tr'],
   },
   eslint: {
     ignoreDuringBuilds: true, // Vercel deploy sırasında ESLint hatalarını yok say
