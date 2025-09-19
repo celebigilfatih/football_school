@@ -33,6 +33,12 @@ export default function AdminLayout({
 
   const checkAuth = async () => {
     try {
+      // Skip auth check for login and register pages
+      if (pathname?.includes('/admin/login') || pathname?.includes('/admin/register')) {
+        setIsLoading(false);
+        return;
+      }
+
       const storedAdmin = authService.getStoredAdmin();
       if (!storedAdmin) {
         router.push('/admin/login');
@@ -56,7 +62,7 @@ export default function AdminLayout({
     router.push('/admin/login');
   };
 
-  if (isLoading && !pathname?.includes('/admin/login')) {
+  if (isLoading && !pathname?.includes('/admin/login') && !pathname?.includes('/admin/register')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -78,8 +84,8 @@ export default function AdminLayout({
     { href: '/admin/admins', label: 'Yöneticiler', icon: '👥' },
   ];
 
-  // Don't render the admin layout for the login page
-  if (pathname?.includes('/admin/login')) {
+  // Don't render the admin layout for the login and register pages
+  if (pathname?.includes('/admin/login') || pathname?.includes('/admin/register')) {
     return children;
   }
 
@@ -208,4 +214,4 @@ export default function AdminLayout({
       </div>
     </div>
   );
-} 
+}
