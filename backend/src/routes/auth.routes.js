@@ -5,6 +5,7 @@ const { auth, isSuperAdmin } = require('../middleware/auth');
 
 // Public routes
 router.post('/login', authController.login);
+router.post('/register', authController.register);
 
 // Protected routes
 router.get('/profile', auth, authController.getProfile);
@@ -17,4 +18,4 @@ router.post('/admins', auth, isSuperAdmin, authController.createAdmin);
 router.put('/admins/:id', auth, isSuperAdmin, authController.updateAdmin);
 router.delete('/admins/:id', auth, isSuperAdmin, authController.deleteAdmin);
 
-module.exports = router; 
+module.exports = router;

@@ -110,6 +110,57 @@ exports.getAdminById = async (req, res) => {
   }
 };
 
+// Register new admin (public endpoint)
+exports.register = async (req, res) => {
+  try {
+    const { username, password, name, email } = req.body;
+
+    // Validation
+    if (!username || !password || !name || !email) {
+      return res.status(400).json({
+        message: 'Tüm alanlar zorunludur'
+      });
+    }
+
+    // Check if username or email already exists
+    const existingAdmin = await Admin.findOne({
+      $or: [{ username }, { email }]
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({
+        message: 'Bu kullanıcı adı veya e-posta adresi zaten kullanılıyor'
+      });
+    }
+
+    const admin = new Admin({
+      username,
+      password,
+      name,
+      email,
+      role: 'editor', // Default role for new registrations
+      isActive: true
+    });
+
+    await admin.save();
+
+    res.status(201).json({
+      message: 'Kayıt başarıyla tamamlandı',
+      admin: {
+        id: admin._id,
+        username: admin.username,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        isActive: admin.isActive,
+        createdAt: admin.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 // Create new admin (super admin only)
 exports.createAdmin = async (req, res) => {
   try {
@@ -189,4 +240,4 @@ exports.deleteAdmin = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}; 
+};

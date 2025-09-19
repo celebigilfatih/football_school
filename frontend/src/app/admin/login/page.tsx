@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { authService } from '@/services/auth.service';
 
 export default function AdminLogin() {
@@ -62,6 +63,12 @@ export default function AdminLogin() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Lütfen giriş yapın
+          </p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Hesabınız yok mu?{' '}
+            <Link href="/admin/register" className="font-medium text-blue-600 hover:text-blue-500">
+              Kayıt olun
+            </Link>
           </p>
         </div>
         
@@ -124,4 +131,4 @@ export default function AdminLogin() {
       </div>
     </div>
   );
-} 
+}

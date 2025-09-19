@@ -26,6 +26,13 @@ export interface ChangePasswordData {
   newPassword: string;
 }
 
+export interface RegisterData {
+  username: string;
+  password: string;
+  name: string;
+  email: string;
+}
+
 export interface CreateAdminData {
   username: string;
   password: string;
@@ -53,6 +60,11 @@ export const authService = {
     // API instance'ına Authorization header'ını ekle
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     
+    return response.data;
+  },
+
+  register: async (data: RegisterData): Promise<{ message: string; admin: Admin }> => {
+    const response = await api.post('/auth/register', data);
     return response.data;
   },
 
@@ -125,4 +137,4 @@ export const authService = {
     const admin = authService.getStoredAdmin();
     return admin?.role === 'admin';
   }
-}; 
+};
