@@ -6,8 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Group, groupService } from '@/services/group.service';
 import Link from 'next/link';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+import { BASE_URL } from '@/config';
 
 export default function Groups() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -89,7 +88,7 @@ export default function Groups() {
                 {group.imageUrl && (
                   <div className="relative h-[200px] w-full">
                     <Image
-                      src={`${API_URL}${group.imageUrl}`}
+                      src={`${BASE_URL}${group.imageUrl}`}
                       alt={group.name}
                       fill
                       className="object-cover"
@@ -150,4 +149,4 @@ export default function Groups() {
       <Footer />
     </div>
   );
-} 
+}

@@ -46,7 +46,7 @@ services:
     ports:
       - "3005:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      - NEXT_PUBLIC_API_URL=https://futbol.webmahsul.com.tr/api
     depends_on:
       - backend
     networks:
