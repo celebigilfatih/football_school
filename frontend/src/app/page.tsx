@@ -45,6 +45,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [news, setNews] = useState<News[]>([]);
   const [upcomingMatches, setUpcomingMatches] = useState<Match[]>([]);
+  const [allMatches, setAllMatches] = useState<Match[]>([]);
   const [matchLoading, setMatchLoading] = useState(true);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -112,10 +113,17 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const fetchUpcomingMatches = async () => {
+    const fetchAllMatches = async () => {
       try {
-        const matches = await matchService.getUpcoming();
-        setUpcomingMatches(matches);
+        const matches = await matchService.getAll();
+        // Tüm maçları al ve tarihe göre sırala (en yakın tarihten başlayarak)
+        const sortedMatches = matches.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB.getTime() - dateA.getTime(); // En yeni tarihten eskiye doğru
+        });
+        
+        setAllMatches(sortedMatches);
         setMatchError(null);
       } catch (err) {
         setMatchError('Maç bilgileri yüklenirken bir hata oluştu');
@@ -125,7 +133,7 @@ export default function Home() {
       }
     };
 
-    fetchUpcomingMatches();
+    fetchAllMatches();
   }, []);
 
   useEffect(() => {
@@ -365,10 +373,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Upcoming Matches Section */}
+      {/* Matches Section - Updated to show all matches */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Yaklaşan Maçlar</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Maçlar</h2>
           
           {matchLoading ? (
             <div className="flex justify-center">
@@ -378,39 +386,82 @@ export default function Home() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 max-w-lg mx-auto">
               {matchError}
             </div>
-          ) : upcomingMatches && upcomingMatches.length > 0 ? (
+          ) : allMatches && allMatches.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingMatches.map((match) => (
-                <div
-                  key={match._id}
-                  className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100"
-                >
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-sm font-medium text-gray-500">
-                        {format(new Date(match.date), 'd MMMM yyyy', { locale: tr })}
+              {allMatches.slice(0, 6).map((match) => {
+                const matchDate = new Date(match.date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const isUpcoming = matchDate >= today && match.status === 'scheduled';
+                const isCompleted = match.status === 'completed';
+                
+                return (
+                  <div
+                    key={match._id}
+                    className={`bg-white rounded-lg shadow-sm overflow-hidden border ${
+                      isCompleted 
+                        ? 'border-green-200 bg-green-50' 
+                        : isUpcoming 
+                        ? 'border-blue-200 bg-blue-50' 
+                        : 'border-gray-100'
+                    }`}
+                  >
+                    <div className="p-6">
+                      {/* Status Badge */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="text-sm font-medium text-gray-500">
+                          {format(new Date(match.date), 'd MMMM yyyy', { locale: tr })}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-medium text-gray-500">
+                            {match.time}
+                          </div>
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            isCompleted 
+                              ? 'bg-green-100 text-green-800' 
+                              : isUpcoming 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : match.status === 'cancelled'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {isCompleted 
+                              ? 'Tamamlandı' 
+                              : isUpcoming 
+                              ? 'Yaklaşan' 
+                              : match.status === 'cancelled'
+                              ? 'İptal'
+                              : 'Geçmiş'
+                            }
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-sm font-medium text-gray-500">
-                        {match.time}
+                      
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="text-lg font-semibold text-gray-900">{match.homeTeam}</div>
+                        <div className="text-center">
+                          {isCompleted && match.score ? (
+                            <div className="text-lg font-bold text-gray-900">
+                              {match.score.homeTeam} - {match.score.awayTeam}
+                            </div>
+                          ) : (
+                            <div className="text-sm font-bold text-gray-400">VS</div>
+                          )}
+                        </div>
+                        <div className="text-lg font-semibold text-gray-900">{match.awayTeam}</div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-lg font-semibold text-gray-900">{match.homeTeam}</div>
-                      <div className="text-sm font-bold text-gray-400">VS</div>
-                      <div className="text-lg font-semibold text-gray-900">{match.awayTeam}</div>
-                    </div>
-                    
-                    <div className="text-sm text-gray-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {match.location}
+                      
+                      <div className="text-sm text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {match.location}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-gray-50 rounded-lg p-8 text-center max-w-lg mx-auto">

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { clubService } from '@/services/club.service';
+import { BASE_URL } from '@/config';
 
 export default function Header() {
   const [clubInfo, setClubInfo] = useState({
@@ -67,12 +68,12 @@ export default function Header() {
       <nav className="container mx-auto py-6">
         <div className="flex items-center justify-between relative">
           <div className="flex items-center space-x-3">
-            <div className="relative w-10 h-10 overflow-hidden rounded-full bg-white/10">
+            <div className="relative w-15 h-15 overflow-hidden rounded-full bg-white/10">
               <Image 
-                src={clubInfo.logo.startsWith('http') ? clubInfo.logo : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${clubInfo.logo}`} 
+                src={clubInfo.logo.startsWith('http') ? clubInfo.logo : `${BASE_URL}${clubInfo.logo}`} 
                 alt={clubInfo.name} 
-                width={40} 
-                height={40} 
+                width={60} 
+                height={60} 
                 className="object-contain"
                 priority
                 unoptimized={true}
@@ -166,4 +167,4 @@ export default function Header() {
       </nav>
     </header>
   );
-} 
+}

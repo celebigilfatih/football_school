@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { TechnicalStaff } from '@/services/technicalStaff.service';
 import { createStaff } from '@/services/technicalStaff.service';
+import { authService } from '@/services/auth.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,13 +19,28 @@ export default function NewTechnicalStaffPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
-    position: 'Teknik Direktör' as StaffPosition,
-    image: '/staff-placeholder.jpg',
+    position: '' as StaffPosition,
+    qualification: '',
+    experience: 0,
+    biography: '',
+    image: '',
     isActive: true,
     joinDate: new Date().toISOString()
   });
   const [imagePreview, setImagePreview] = useState<string>('/staff-placeholder.jpg');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Check authentication
+    const admin = authService.getStoredAdmin();
+    if (!admin) {
+      router.push('/admin/login');
+      return;
+    }
+
+    // Initialize auth headers
+    authService.initializeAuth();
+  }, [router]);
 
   const handleChange = (name: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -106,6 +122,38 @@ export default function NewTechnicalStaffPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
+                <Label htmlFor="qualification">Yeterlilik</Label>
+                <Input
+                  id="qualification"
+                  value={formData.qualification}
+                  onChange={(e) => handleChange('qualification', e.target.value)}
+                  placeholder="Yeterlilik bilgisi giriniz"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="experience">Deneyim (Yıl)</Label>
+                <Input
+                  id="experience"
+                  type="number"
+                  min="0"
+                  value={formData.experience}
+                  onChange={(e) => handleChange('experience', parseInt(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="biography">Biyografi</Label>
+                <textarea
+                  id="biography"
+                  value={formData.biography}
+                  onChange={(e) => handleChange('biography', e.target.value)}
+                  placeholder="Biyografi bilgisi giriniz"
+                  className="w-full min-h-[100px] p-3 border border-gray-300 rounded-md resize-vertical"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="name">Ad Soyad</Label>
                 <Input
                   id="name"
@@ -182,4 +230,4 @@ export default function NewTechnicalStaffPage() {
       </Card>
     </div>
   );
-} 
+}

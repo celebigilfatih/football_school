@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Group, groupService } from '@/services/group.service';
 import Header from '@/components/Header';
@@ -9,15 +8,16 @@ import Footer from '@/components/Footer';
 import { BASE_URL } from '@/config';
 
 export default function GroupDetail({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
+  const { id } = use(params);
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageRetryCount, setImageRetryCount] = useState(0);
 
   useEffect(() => {
     const fetchGroup = async () => {
       try {
-        const data = await groupService.getById(resolvedParams.id);
+        const data = await groupService.getById(id);
         setGroup(data);
         setError(null);
       } catch (err) {
@@ -29,7 +29,7 @@ export default function GroupDetail({ params }: { params: Promise<{ id: string }
     };
 
     fetchGroup();
-  }, [resolvedParams.id]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -65,14 +65,55 @@ export default function GroupDetail({ params }: { params: Promise<{ id: string }
       
       <div className="container mx-auto px-4 py-16">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {group.imageUrl && (
+          {group.imageUrl ? (
             <div className="relative h-[400px] w-full">
-              <Image
-                src={`${BASE_URL}${group.imageUrl}`}
+              <img
+                src={(group.imageUrl?.startsWith('blob:') || group.imageUrl?.startsWith('data:') || group.imageUrl?.startsWith('http')) ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`}
                 alt={group.name}
-                fill
-                className="object-cover"
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  const usedUrl = (group.imageUrl?.startsWith('blob:') || group.imageUrl?.startsWith('data:') || group.imageUrl?.startsWith('http')) ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`;
+                  console.group('🖼️ Image Load Error Details');
+                  console.error('Timestamp:', new Date().toISOString());
+                  console.error('Original imageUrl:', group.imageUrl);
+                  console.error('Constructed URL:', usedUrl);
+                  console.error('Error event:', e);
+                  console.error('Image element:', e.target);
+                  console.error('Navigator online:', navigator.onLine);
+                  console.groupEnd();
+                  
+                  // Try retry with cache-busting if we haven't retried too many times
+                  if (imageRetryCount < 2) {
+                    console.log(`🔄 Retrying image load (attempt ${imageRetryCount + 1}/2) with cache-busting...`);
+                    const img = e.target as HTMLImageElement;
+                    const cacheBustUrl = usedUrl + (usedUrl.includes('?') ? '&' : '?') + `t=${Date.now()}&retry=${imageRetryCount + 1}`;
+                    img.src = cacheBustUrl;
+                    setImageRetryCount(prev => prev + 1);
+                    return;
+                  }
+                  
+                  // After max retries, check if image actually loaded
+                  setTimeout(() => {
+                    console.log('🔄 Final check if image loaded after error...');
+                    const img = e.target as HTMLImageElement;
+                    if (img.complete && img.naturalWidth === 0) {
+                      console.log('❌ Image permanently failed, hiding container');
+                      img.parentElement!.style.display = 'none';
+                    } else if (img.complete && img.naturalWidth > 0) {
+                      console.log('✅ Image actually loaded successfully after error!');
+                    }
+                  }, 1000);
+                 }}
               />
+            </div>
+          ) : (
+            <div className="relative h-[400px] w-full bg-gray-200 flex items-center justify-center">
+              <div className="text-gray-500 text-center">
+                <svg className="w-16 h-16 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm">Resim yükleniyor...</p>
+              </div>
             </div>
           )}
           

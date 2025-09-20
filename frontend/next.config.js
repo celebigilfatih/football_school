@@ -1,7 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost', 'futbol.webmahsul.com.tr'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'futbol.webmahsul.com.tr',
+        pathname: '/uploads/**',
+      },
+    ],
   },
   eslint: {
     ignoreDuringBuilds: true, // Vercel deploy sırasında ESLint hatalarını yok say

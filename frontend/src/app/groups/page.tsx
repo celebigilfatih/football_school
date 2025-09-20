@@ -12,6 +12,7 @@ export default function Groups() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageRetryCount, setImageRetryCount] = useState<{[key: string]: number}>({});
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -29,6 +30,44 @@ export default function Groups() {
 
     fetchGroups();
   }, []);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, group: Group) => {
+    const usedUrl = (group.imageUrl?.startsWith('blob:') || group.imageUrl?.startsWith('data:') || group.imageUrl?.startsWith('http')) ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`;
+    const retryCount = imageRetryCount[group._id] || 0;
+    
+    console.group('🖼️ Image Load Error Details (Groups List)');
+    console.error('Timestamp:', new Date().toISOString());
+    console.error('Group ID:', group._id);
+    console.error('Group name:', group.name);
+    console.error('Original imageUrl:', group.imageUrl);
+    console.error('Constructed URL:', usedUrl);
+    console.error('Retry count:', retryCount);
+    console.error('Error event:', e);
+    console.error('Navigator online:', navigator.onLine);
+    console.groupEnd();
+    
+    // Try retry with cache-busting if we haven't retried too many times
+    if (retryCount < 2) {
+      console.log(`🔄 Retrying image load for ${group.name} (attempt ${retryCount + 1}/2) with cache-busting...`);
+      const img = e.target as HTMLImageElement;
+      const cacheBustUrl = usedUrl + (usedUrl.includes('?') ? '&' : '?') + `t=${Date.now()}&retry=${retryCount + 1}`;
+      img.src = cacheBustUrl;
+      setImageRetryCount(prev => ({...prev, [group._id]: retryCount + 1}));
+      return;
+    }
+    
+    // After max retries, check if image actually loaded
+    setTimeout(() => {
+      console.log(`🔄 Final check if image loaded after error for ${group.name}...`);
+      const img = e.target as HTMLImageElement;
+      if (img.complete && img.naturalWidth === 0) {
+        console.log('❌ Image permanently failed, hiding container');
+        img.parentElement!.style.display = 'none';
+      } else if (img.complete && img.naturalWidth > 0) {
+        console.log('✅ Image actually loaded successfully after error!');
+      }
+    }, 1000);
+  };
 
   if (loading) {
     return (
@@ -85,14 +124,23 @@ export default function Groups() {
           <div className="grid md:grid-cols-2 gap-8">
             {groups.map((group) => (
               <div key={group._id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                {group.imageUrl && (
+                {group.imageUrl ? (
                   <div className="relative h-[200px] w-full">
-                    <Image
-                      src={`${BASE_URL}${group.imageUrl}`}
-                      alt={group.name}
-                      fill
-                      className="object-cover"
-                    />
+                    <img
+                        src={(group.imageUrl?.startsWith('blob:') || group.imageUrl?.startsWith('data:') || group.imageUrl?.startsWith('http')) ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`}
+                        alt={group.name}
+                        className="object-cover w-full h-full"
+                        onError={(e) => handleImageError(e, group)}
+                      />
+                  </div>
+                ) : (
+                  <div className="relative h-[200px] w-full bg-gray-200 flex items-center justify-center">
+                    <div className="text-gray-500 text-center">
+                      <svg className="w-16 h-16 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-sm">Resim yükleniyor...</p>
+                    </div>
                   </div>
                 )}
                 <div className="p-6">
@@ -150,3 +198,42 @@ export default function Groups() {
     </div>
   );
 }
+
+
+const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, group: Group) => {
+  const usedUrl = (group.imageUrl?.startsWith('blob:') || group.imageUrl?.startsWith('data:') || group.imageUrl?.startsWith('http')) ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`;
+  const retryCount = imageRetryCount[group._id] || 0;
+  
+  console.group('🖼️ Image Load Error Details (Groups List)');
+  console.error('Timestamp:', new Date().toISOString());
+  console.error('Group ID:', group._id);
+  console.error('Group name:', group.name);
+  console.error('Original imageUrl:', group.imageUrl);
+  console.error('Constructed URL:', usedUrl);
+  console.error('Retry count:', retryCount);
+  console.error('Error event:', e);
+  console.error('Navigator online:', navigator.onLine);
+  console.groupEnd();
+  
+  // Try retry with cache-busting if we haven't retried too many times
+  if (retryCount < 2) {
+    console.log(`🔄 Retrying image load for ${group.name} (attempt ${retryCount + 1}/2) with cache-busting...`);
+    const img = e.target as HTMLImageElement;
+    const cacheBustUrl = usedUrl + (usedUrl.includes('?') ? '&' : '?') + `t=${Date.now()}&retry=${retryCount + 1}`;
+    img.src = cacheBustUrl;
+    setImageRetryCount(prev => ({...prev, [group._id]: retryCount + 1}));
+    return;
+  }
+  
+  // After max retries, check if image actually loaded
+  setTimeout(() => {
+    console.log(`🔄 Final check if image loaded after error for ${group.name}...`);
+    const img = e.target as HTMLImageElement;
+    if (img.complete && img.naturalWidth === 0) {
+      console.log('❌ Image permanently failed, hiding container');
+      img.parentElement!.style.display = 'none';
+    } else if (img.complete && img.naturalWidth > 0) {
+      console.log('✅ Image actually loaded successfully after error!');
+    }
+  }, 1000);
+};

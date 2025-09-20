@@ -4,6 +4,9 @@ export interface TechnicalStaff {
   _id: string;
   name: string;
   position: 'Teknik Direktör' | 'Yardımcı Antrenör' | 'Kaleci Antrenörü' | 'Kondisyoner' | 'Fizyoterapist' | 'Masör' | 'Malzemeci' | 'Analizci';
+  qualification?: string;
+  experience?: number;
+  biography?: string;
   image: string;
   isActive: boolean;
   joinDate: string;
@@ -31,4 +34,4 @@ export const updateStaff = async (id: string, staff: Partial<TechnicalStaff>): P
 
 export const deleteStaff = async (id: string): Promise<void> => {
   await api.delete(`/technical-staff/${id}`);
-}; 
+};

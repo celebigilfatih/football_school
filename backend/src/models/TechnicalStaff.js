@@ -20,6 +20,19 @@ const technicalStaffSchema = new mongoose.Schema({
       'Analizci'
     ]
   },
+  qualification: {
+    type: String,
+    default: ''
+  },
+  experience: {
+    type: Number,
+    default: 0,
+    min: [0, 'Deneyim negatif olamaz']
+  },
+  biography: {
+    type: String,
+    default: ''
+  },
   image: {
     type: String,
     default: '/staff-placeholder.jpg'
@@ -34,4 +47,4 @@ const technicalStaffSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('TechnicalStaff', technicalStaffSchema); 
+module.exports = mongoose.model('TechnicalStaff', technicalStaffSchema);

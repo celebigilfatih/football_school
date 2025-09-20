@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'react-hot-toast';
-import Image from 'next/image';
+import { BASE_URL } from '@/config';
 
 export default function AdminGroupForm({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -287,12 +287,10 @@ export default function AdminGroupForm({ params }: { params: Promise<{ id: strin
                 />
                 {group.imageUrl && (
                   <div className="mt-2">
-                    <Image
-                      src={group.imageUrl}
+                    <img
+                      src={`${group.imageUrl}`.startsWith('blob:') || `${group.imageUrl}`.startsWith('data:') || `${group.imageUrl}`.startsWith('http') ? `${group.imageUrl}` : `${BASE_URL}${group.imageUrl}`}
                       alt="Takım Resmi"
-                      width={200}
-                      height={200}
-                      className="rounded-lg object-cover"
+                      className="rounded-lg object-cover w-[200px] h-[200px]"
                     />
                   </div>
                 )}
@@ -483,4 +481,4 @@ export default function AdminGroupForm({ params }: { params: Promise<{ id: strin
       </Card>
     </div>
   );
-} 
+}

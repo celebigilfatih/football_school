@@ -2,6 +2,7 @@ const Group = require('../models/Group');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -14,7 +15,8 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // Tüm resimleri JPEG formatında kaydet
+    cb(null, uniqueSuffix + '.jpg');
   }
 });
 
@@ -64,6 +66,18 @@ exports.createGroup = async (req, res) => {
     try {
       let groupData;
       if (req.file) {
+        // Convert image to JPEG format using Sharp
+        const inputPath = req.file.path;
+        const outputPath = req.file.path; // Same path since we already set .jpg extension
+        
+        await sharp(inputPath)
+          .jpeg({ quality: 90 })
+          .toFile(outputPath + '.temp');
+        
+        // Replace original file with converted JPEG
+        fs.unlinkSync(inputPath);
+        fs.renameSync(outputPath + '.temp', outputPath);
+        
         // If there's an uploaded file
         groupData = JSON.parse(req.body.data);
         groupData.imageUrl = `/uploads/groups/${req.file.filename}`;
@@ -96,6 +110,18 @@ exports.updateGroup = async (req, res) => {
     try {
       let updateData;
       if (req.file) {
+        // Convert image to JPEG format using Sharp
+        const inputPath = req.file.path;
+        const outputPath = req.file.path; // Same path since we already set .jpg extension
+        
+        await sharp(inputPath)
+          .jpeg({ quality: 90 })
+          .toFile(outputPath + '.temp');
+        
+        // Replace original file with converted JPEG
+        fs.unlinkSync(inputPath);
+        fs.renameSync(outputPath + '.temp', outputPath);
+        
         // If there's an uploaded file
         updateData = JSON.parse(req.body.data);
         updateData.imageUrl = `/uploads/groups/${req.file.filename}`;
@@ -154,4 +180,4 @@ exports.deleteGroup = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}; 
+};
