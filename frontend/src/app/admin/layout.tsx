@@ -76,7 +76,8 @@ export default function AdminLayout({
     { href: '/admin/club', label: 'Kulüp Bilgileri', icon: '🏢' },
     { href: '/admin/groups', label: 'Takımlar', icon: '⚽' },
     { href: '/admin/players', label: 'A Takım', icon: '👥' },
-    { href: '/admin/technical-staff', label: 'Teknik Kadro', icon: '👨‍💼' },
+    { href: '/admin/technical-staff', label: 'Teknik Kadro', icon: '⚽' },
+    { href: '/admin/egitmen-kadro', label: 'Eğitmen Kadrosu', icon: '🎓' },
     { href: '/admin/matches', label: 'Maç Takvimi', icon: '📅' },
     { href: '/admin/news', label: 'Haberler', icon: '📰' },
     { href: '/admin/announcements', label: 'Duyurular', icon: '📢' },
@@ -136,6 +137,7 @@ export default function AdminLayout({
                 {pathname === '/admin/technical-staff' && 'Teknik Kadro'}
                 {pathname.includes('/admin/technical-staff/') && !pathname.includes('/new') && 'Teknik Personel Detayları'}
                 {pathname === '/admin/technical-staff/new' && 'Yeni Teknik Personel Ekle'}
+                {pathname === '/admin/egitmen-kadro' && 'Eğitmen Kadrosu'}
                 {pathname === '/admin/matches' && 'Maç Takvimi'}
                 {pathname.includes('/admin/matches/') && !pathname.includes('/new') && 'Maç Detayları'}
                 {pathname === '/admin/matches/new' && 'Yeni Maç Ekle'}
