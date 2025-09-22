@@ -28,6 +28,9 @@ export default function AdminAbout() {
     image: '',
     qualification: ''
   });
+  const [newTrainerImageFile, setNewTrainerImageFile] = useState<File | null>(null);
+  const [newTrainerImagePreview, setNewTrainerImagePreview] = useState<string>('');
+  const [editingTrainerImages, setEditingTrainerImages] = useState<{[key: string]: {file: File | null, preview: string}}>({});
 
   useEffect(() => {
     // Check authentication
@@ -79,6 +82,18 @@ export default function AdminAbout() {
     }));
   };
 
+  const handleNewTrainerImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewTrainerImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setNewTrainerImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -103,14 +118,32 @@ export default function AdminAbout() {
 
     setSaving(true);
     try {
-      const updatedAbout = await aboutService.addTrainer(newTrainer);
-      setAbout(updatedAbout);
+      let trainerData = { ...newTrainer };
+      
+      // Eğer dosya yüklendiyse, FormData kullanarak gönder
+      if (newTrainerImageFile) {
+        const formData = new FormData();
+        formData.append('name', newTrainer.name);
+        formData.append('position', newTrainer.position);
+        formData.append('qualification', newTrainer.qualification);
+        formData.append('image', newTrainerImageFile);
+        
+        const updatedAbout = await aboutService.addTrainerWithImage(formData);
+        setAbout(updatedAbout);
+      } else {
+        // Dosya yoksa normal şekilde gönder
+        const updatedAbout = await aboutService.addTrainer(trainerData);
+        setAbout(updatedAbout);
+      }
+      
       setNewTrainer({
         name: '',
         position: '',
         image: '',
         qualification: ''
       });
+      setNewTrainerImageFile(null);
+      setNewTrainerImagePreview('');
       setError(null);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Eğitmen eklenirken bir hata oluştu');
@@ -136,6 +169,70 @@ export default function AdminAbout() {
     } catch (err: any) {
       setError(err.response?.data?.message || 'Eğitmen silinirken bir hata oluştu');
       console.error('Error deleting trainer:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTrainerImageChange = (trainerId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Dosya boyutu 5MB\'dan küçük olmalıdır');
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        setError('Lütfen geçerli bir resim dosyası seçin');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setEditingTrainerImages(prev => ({
+          ...prev,
+          [trainerId]: {
+            file: file,
+            preview: e.target?.result as string
+          }
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateTrainer = async (trainerId: string, trainerData: any) => {
+    setSaving(true);
+    try {
+      const imageData = editingTrainerImages[trainerId];
+      
+      if (imageData?.file) {
+        // Dosya yükleme ile güncelle
+        const formData = new FormData();
+        formData.append('name', trainerData.name);
+        formData.append('position', trainerData.position);
+        formData.append('qualification', trainerData.qualification);
+        formData.append('image', imageData.file);
+        
+        const updatedAbout = await aboutService.updateTrainerWithImage(trainerId, formData);
+        setAbout(updatedAbout);
+        
+        // Düzenleme state'ini temizle
+        setEditingTrainerImages(prev => {
+          const newState = { ...prev };
+          delete newState[trainerId];
+          return newState;
+        });
+      } else {
+        // Normal güncelleme
+        const updatedAbout = await aboutService.updateTrainer(trainerId, trainerData);
+        setAbout(updatedAbout);
+      }
+      
+      setError(null);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Eğitmen güncellenirken bir hata oluştu');
+      console.error('Error updating trainer:', err);
     } finally {
       setSaving(false);
     }
@@ -226,12 +323,28 @@ export default function AdminAbout() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Fotoğraf URL
+                      Fotoğraf
                     </label>
-                    <Input
-                      value={trainer.image}
-                      onChange={(e) => handleTrainerChange(index, 'image', e.target.value)}
-                    />
+                    <div className="space-y-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => trainer._id && handleTrainerImageChange(trainer._id, e)}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      {(editingTrainerImages[trainer._id || '']?.preview || trainer.image) && (
+                        <div className="mt-2">
+                          <img
+                            src={editingTrainerImages[trainer._id || '']?.preview || trainer.image}
+                            alt="Eğitmen fotoğrafı"
+                            className="w-20 h-20 object-cover rounded-lg border"
+                          />
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG veya GIF formatında, maksimum 5MB
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -243,14 +356,22 @@ export default function AdminAbout() {
                     />
                   </div>
                 </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => trainer._id && handleDeleteTrainer(trainer._id)}
-                  className="mt-4"
-                  disabled={saving}
-                >
-                  Eğitmeni Sil
-                </Button>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    onClick={() => trainer._id && handleUpdateTrainer(trainer._id, trainer)}
+                    disabled={saving}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Güncelle
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => trainer._id && handleDeleteTrainer(trainer._id)}
+                    disabled={saving}
+                  >
+                    Eğitmeni Sil
+                  </Button>
+                </div>
               </div>
             ))}
 
@@ -279,13 +400,29 @@ export default function AdminAbout() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fotoğraf URL
+                    Fotoğraf
                   </label>
-                  <Input
-                    value={newTrainer.image}
-                    onChange={(e) => handleNewTrainerChange('image', e.target.value)}
-                    placeholder="Fotoğraf bağlantısı"
-                  />
+                  <div className="space-y-2">
+                    {newTrainerImagePreview && (
+                      <div className="relative w-32 h-32 mx-auto">
+                        <Image
+                          src={newTrainerImagePreview}
+                          alt="Önizleme"
+                          fill
+                          className="object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleNewTrainerImageChange}
+                      className="cursor-pointer"
+                    />
+                    <p className="text-sm text-gray-500">
+                      PNG, JPG, GIF dosyaları (max. 5MB)
+                    </p>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -311,4 +448,4 @@ export default function AdminAbout() {
       </Card>
     </div>
   );
-} 
+}

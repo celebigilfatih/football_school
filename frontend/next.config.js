@@ -22,6 +22,20 @@ const nextConfig = {
     ignoreBuildErrors: true, // TypeScript hatalarını yok say
   },
   reactStrictMode: false, // Strict mode'u kapatıyoruz
+  
+  // API isteklerini backend'e yönlendir
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://backend:5000/api/:path*', // Docker network içinde backend servisine yönlendir
+      },
+      {
+        source: '/uploads/:path*',
+        destination: 'http://backend:5000/uploads/:path*', // Upload dosyalarını da yönlendir
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

@@ -58,6 +58,51 @@ exports.addTrainer = async (req, res) => {
   }
 };
 
+// Eğitmen ekle (dosya yükleme ile)
+exports.addTrainerWithImage = async (req, res) => {
+  try {
+    const about = await About.findOne();
+    if (!about) {
+      return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
+    }
+
+    // Dosya yükleme kontrolü
+    if (!req.file) {
+      return res.status(400).json({ message: 'Lütfen bir fotoğraf yükleyin' });
+    }
+
+    const trainerData = {
+      name: req.body.name,
+      position: req.body.position,
+      qualification: req.body.qualification,
+      image: `/uploads/${req.file.filename}`
+    };
+
+    about.trainers.push(trainerData);
+    about.updatedAt = new Date();
+    await about.save();
+
+    res.status(201).json(about);
+  } catch (error) {
+    console.error('Eğitmen ekleme hatası:', error);
+    
+    // Multer hataları için özel mesajlar
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'Dosya boyutu çok büyük. Maksimum 5MB olmalıdır.' });
+    }
+    
+    if (error.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ message: 'Çok fazla dosya yüklendi.' });
+    }
+    
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ message: 'Beklenmeyen dosya alanı.' });
+    }
+    
+    res.status(500).json({ message: error.message || 'Eğitmen eklenirken bir hata oluştu' });
+  }
+};
+
 // Eğitmen güncelle
 exports.updateTrainer = async (req, res) => {
   try {
@@ -88,6 +133,47 @@ exports.updateTrainer = async (req, res) => {
   }
 };
 
+// Eğitmen güncelle (dosya yükleme ile)
+exports.updateTrainerWithImage = async (req, res) => {
+  try {
+    const about = await About.findOne();
+    if (!about) {
+      return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
+    }
+
+    const trainerIndex = about.trainers.findIndex(
+      trainer => trainer._id.toString() === req.params.trainerId
+    );
+
+    if (trainerIndex === -1) {
+      return res.status(404).json({ message: 'Eğitmen bulunamadı' });
+    }
+
+    const updateData = {
+      name: req.body.name,
+      position: req.body.position,
+      qualification: req.body.qualification
+    };
+
+    // Eğer yeni dosya yüklendiyse, image alanını güncelle
+    if (req.file) {
+      updateData.image = `/uploads/${req.file.filename}`;
+    }
+
+    about.trainers[trainerIndex] = {
+      ...about.trainers[trainerIndex],
+      ...updateData
+    };
+
+    about.updatedAt = new Date();
+    await about.save();
+
+    res.status(200).json(about);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 // Eğitmen sil
 exports.deleteTrainer = async (req, res) => {
   try {
@@ -107,4 +193,4 @@ exports.deleteTrainer = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}; 
+};
