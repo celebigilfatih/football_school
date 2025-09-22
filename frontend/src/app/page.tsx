@@ -386,7 +386,7 @@ export default function Home() {
                 <div className="p-8">
                   <div className="text-white">
                     <h2 className="text-2xl font-bold mb-2 text-white">Antrenman Programı</h2>
-                    <p className="text-sm mb-4">Haftalık antrenman programı ve saatlerimiz</p>
+                    <p className="text-sm mb-4">Haftalık antrenman programı ve saatlerimiz.</p>
                     <Link 
                       href="/schedule"
                       className="inline-flex items-center text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors"
