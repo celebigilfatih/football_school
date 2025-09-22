@@ -132,37 +132,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
-      {about.trainers.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-center mb-12">Eğitmen Kadromuz</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {about.trainers.map((trainer) => (
-                  <div key={trainer._id} className="group">
-                    <div className="text-center bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300">
-                      <div className="w-48 h-48 mx-auto mb-4 relative rounded-full overflow-hidden">
-                        <Image
-                          src={trainer.image || '/trainer-placeholder.jpg'}
-                          alt={trainer.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      </div>
-                      <h3 className="text-xl font-semibold">{trainer.name}</h3>
-                      <p className="text-gray-600">{trainer.position}</p>
-                      <p className="text-sm text-gray-500 mt-2">{trainer.qualification}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+
 
       <Footer />
     </div>
   );
-} 
+}

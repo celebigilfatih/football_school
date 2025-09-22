@@ -84,6 +84,7 @@ export default function Header() {
           <div className="hidden md:flex space-x-6 justify-end">
             <Link href="/" className="hover:text-blue-300 font-semibold text-sm tracking-wide">ANA SAYFA</Link>
             <Link href="/about" className="hover:text-blue-300 font-semibold text-sm tracking-wide">HAKKIMIZDA</Link>
+            <Link href="/egitmen-kadro" className="hover:text-blue-300 font-semibold text-sm tracking-wide">EĞİTMEN KADRO</Link>
             <Link href="/players" className="hover:text-blue-300 font-semibold text-sm tracking-wide">A TAKIM</Link>
             <Link href="/groups" className="hover:text-blue-300 font-semibold text-sm tracking-wide">ALT YAPI TAKIMLARIMIZ</Link>
             <Link href="/news" className="hover:text-blue-300 font-semibold text-sm tracking-wide">HABERLER</Link>
@@ -125,6 +126,13 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 HAKKIMIZDA
+              </Link>
+              <Link 
+                href="/egitmen-kadro" 
+                className="text-white hover:text-blue-300 font-semibold text-lg tracking-wide"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                EĞİTMEN KADRO
               </Link>
               <Link 
                 href="/players" 

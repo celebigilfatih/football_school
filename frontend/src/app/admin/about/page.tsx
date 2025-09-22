@@ -299,150 +299,16 @@ export default function AdminAbout() {
 
       <Card className="mb-8">
         <CardContent className="p-6">
-          <div className="space-y-4">
-            {about.trainers.map((trainer, index) => (
-              <div key={trainer._id} className="p-4 border rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ad Soyad
-                    </label>
-                    <Input
-                      value={trainer.name}
-                      onChange={(e) => handleTrainerChange(index, 'name', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Pozisyon
-                    </label>
-                    <Input
-                      value={trainer.position}
-                      onChange={(e) => handleTrainerChange(index, 'position', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Fotoğraf
-                    </label>
-                    <div className="space-y-2">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => trainer._id && handleTrainerImageChange(trainer._id, e)}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      />
-                      {(editingTrainerImages[trainer._id || '']?.preview || trainer.image) && (
-                        <div className="mt-2">
-                          <img
-                            src={editingTrainerImages[trainer._id || '']?.preview || trainer.image}
-                            alt="Eğitmen fotoğrafı"
-                            className="w-20 h-20 object-cover rounded-lg border"
-                          />
-                        </div>
-                      )}
-                      <p className="text-xs text-gray-500">
-                        JPG, PNG veya GIF formatında, maksimum 5MB
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Yeterlilik
-                    </label>
-                    <Input
-                      value={trainer.qualification}
-                      onChange={(e) => handleTrainerChange(index, 'qualification', e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <Button
-                    onClick={() => trainer._id && handleUpdateTrainer(trainer._id, trainer)}
-                    disabled={saving}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Güncelle
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => trainer._id && handleDeleteTrainer(trainer._id)}
-                    disabled={saving}
-                  >
-                    Eğitmeni Sil
-                  </Button>
-                </div>
-              </div>
-            ))}
-
-            <div className="border-t pt-4">
-              <h3 className="text-lg font-semibold mb-4">Yeni Eğitmen Ekle</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Ad Soyad
-                  </label>
-                  <Input
-                    value={newTrainer.name}
-                    onChange={(e) => handleNewTrainerChange('name', e.target.value)}
-                    placeholder="Eğitmenin adı"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Pozisyon
-                  </label>
-                  <Input
-                    value={newTrainer.position}
-                    onChange={(e) => handleNewTrainerChange('position', e.target.value)}
-                    placeholder="Eğitmenin pozisyonu"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fotoğraf
-                  </label>
-                  <div className="space-y-2">
-                    {newTrainerImagePreview && (
-                      <div className="relative w-32 h-32 mx-auto">
-                        <Image
-                          src={newTrainerImagePreview}
-                          alt="Önizleme"
-                          fill
-                          className="object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleNewTrainerImageChange}
-                      className="cursor-pointer"
-                    />
-                    <p className="text-sm text-gray-500">
-                      PNG, JPG, GIF dosyaları (max. 5MB)
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Yeterlilik
-                  </label>
-                  <Input
-                    value={newTrainer.qualification}
-                    onChange={(e) => handleNewTrainerChange('qualification', e.target.value)}
-                    placeholder="Eğitmenin yeterliliği"
-                  />
-                </div>
-              </div>
-              <Button
-                onClick={handleAddTrainer}
-                className="mt-4"
-                disabled={saving}
-              >
-                Eğitmen Ekle
-              </Button>
-            </div>
+          <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">
+              Eğitmen kadrosu yönetimi artık ayrı bir sayfada bulunmaktadır.
+            </p>
+            <Button
+              onClick={() => router.push('/egitmen-kadro')}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Eğitmen Kadro Sayfasına Git
+            </Button>
           </div>
         </CardContent>
       </Card>
