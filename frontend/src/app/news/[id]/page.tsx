@@ -71,11 +71,15 @@ export default function NewsDetail({ params }: { params: Promise<{ id: string }>
         {/* Hero Image */}
         <div className="relative h-[500px]">
           <Image
-            src={news.image || '/news-placeholder.jpg'}
+            src={news.image || '/news-placeholder.svg'}
             alt={news.title}
             fill
             className="object-cover"
             priority
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/news-placeholder.svg';
+            }}
           />
           <div className="absolute inset-0 bg-black/50"></div>
           <div className="relative container mx-auto px-4 h-full flex items-end pb-16">
@@ -140,4 +144,4 @@ export default function NewsDetail({ params }: { params: Promise<{ id: string }>
       </article>
     </div>
   );
-} 
+}

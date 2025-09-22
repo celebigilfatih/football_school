@@ -21,6 +21,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true, // TypeScript hatalarını yok say
   },
+  reactStrictMode: false, // Strict mode'u kapatıyoruz
 };
 
 module.exports = nextConfig;

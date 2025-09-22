@@ -13,14 +13,11 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3005', 
-    'https://futbol.webmahsul.com.tr',
-    'http://futbol.webmahsul.com.tr'
-  ],
+  origin: '*', // Allow all origins for debugging
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'Expires', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));

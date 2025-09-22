@@ -167,7 +167,7 @@ export default function AdminNewsForm({ params }: { params: Promise<{ id: string
         publishDate: new Date(news.publishDate || new Date()).toISOString(),
         tags: Array.isArray(news.tags) ? news.tags.filter(tag => tag.trim()) : [],
         // Only include image if it's not empty and not the placeholder
-        ...(news.image && !news.image.includes('news-placeholder.jpg') ? { image: news.image } : {})
+        ...(news.image && !news.image.includes('news-placeholder.svg') ? { image: news.image } : {})
       };
 
       if (isNew) {
@@ -392,4 +392,4 @@ export default function AdminNewsForm({ params }: { params: Promise<{ id: string
       </div>
     </div>
   );
-} 
+}

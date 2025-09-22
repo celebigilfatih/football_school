@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
@@ -12,7 +12,8 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Player, getAllPlayers } from '@/services/player.service';
 
-const slides = [
+// Fallback slides for when news is not available
+const fallbackSlides = [
   {
     id: 1,
     image: "/slider1.jpg",
@@ -40,6 +41,8 @@ const slides = [
 ];
 
 export default function Home() {
+  console.log('=== HOME COMPONENT FUNCTION STARTING ===');
+  
   const [currentSlide, setCurrentSlide] = useState(0);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,14 +55,58 @@ export default function Home() {
   const [playersLoading, setPlayersLoading] = useState(true);
   const [playersError, setPlayersError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+  console.log('Home component rendering...');
+  console.log('News state:', news);
+  console.log('Current slide:', currentSlide);
 
-    return () => clearInterval(timer);
-  }, []);
+  // Fetch news immediately and convert to slides
+  console.log('=== FETCHING NEWS IMMEDIATELY ===');
+  
+  // Create slides from news or use fallback
+  const createSlidesFromNews = (newsData: News[]) => {
+    if (newsData && newsData.length > 0) {
+      console.log('Creating slides from news data:', newsData.length, 'items');
+      return newsData.slice(0, 3).map((newsItem, index) => ({
+        id: index + 1,
+        image: newsItem.image || `/slider${index + 1}.jpg`,
+        title: newsItem.title,
+        subtitle: newsItem.content.substring(0, 100) + '...',
+        buttonText: 'Devamını Oku',
+        buttonLink: `/news/${newsItem._id}`
+      }));
+    }
+    console.log('Using fallback slides');
+    return fallbackSlides;
+  };
 
+  // Immediate news fetch
+  if (news.length === 0) {
+    console.log('=== STARTING IMMEDIATE NEWS FETCH ===');
+    fetch('http://localhost:5000/api/news')
+      .then(response => {
+        console.log('News fetch response status:', response.status);
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      })
+      .then(data => {
+        console.log('News data received:', data);
+        console.log('Data type:', typeof data);
+        console.log('Is array:', Array.isArray(data));
+        console.log('Data length:', data?.length);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setNews(data);
+          console.log('News state updated with:', data.length, 'items');
+        }
+      })
+      .catch(error => {
+        console.error('News fetch error:', error);
+      });
+  }
+
+  // Announcements useEffect
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -73,43 +120,6 @@ export default function Home() {
     };
 
     fetchAnnouncements();
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchAnnouncements();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const data = await newsService.getAll();
-        setNews(data);
-      } catch (error) {
-        console.error('Error fetching news:', error);
-      }
-    };
-
-    fetchNews();
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchNews();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, []);
 
   useEffect(() => {
@@ -165,6 +175,79 @@ export default function Home() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // Create slides from latest 3 news or use fallback slides
+  const slides = news.length > 0 
+    ? news.slice(0, 3).map((newsItem, index) => ({
+        id: newsItem._id || index,
+        image: newsItem.image || `/slider${index + 1}.jpg`,
+        title: newsItem.title,
+        subtitle: newsItem.summary || newsItem.content.substring(0, 100) + '...',
+        buttonText: "Haberi Oku",
+        buttonLink: `/news/${newsItem._id}`
+      }))
+    : fallbackSlides;
+
+  console.log('News array:', news);
+  console.log('Slides array:', slides);
+  console.log('Current slide index:', currentSlide);
+
+  // Immediate news fetch - let's try this approach
+  React.useEffect(() => {
+    console.log('=== IMMEDIATE NEWS FETCH USEEFFECT ===');
+    
+    const fetchNewsImmediate = async () => {
+      try {
+        console.log('Fetching news immediately...');
+        const response = await fetch('http://localhost:5000/api/news');
+        console.log('Fetch response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched news via fetch:', data);
+          console.log('News data length:', data?.length);
+          
+          if (Array.isArray(data) && data.length > 0) {
+            console.log('Setting news state with fetched data');
+            setNews(data);
+          }
+        } else {
+          console.error('Fetch failed with status:', response.status);
+        }
+      } catch (error) {
+        console.error('Immediate fetch error:', error);
+      }
+    };
+    
+    fetchNewsImmediate();
+  }, []);
+
+  // Auto-slide functionality
+  useEffect(() => {
+    console.log('=== SLIDER USEEFFECT STARTING ===');
+    console.log('Setting up auto-slide with slides length:', slides.length);
+    
+    if (slides.length <= 1) {
+      console.log('Not enough slides for auto-slide');
+      return;
+    }
+
+    const interval = setInterval(() => {
+      console.log('Auto-slide triggered, current slide:', currentSlide);
+      setCurrentSlide((prev) => {
+        const nextSlide = (prev + 1) % slides.length;
+        console.log('Moving to slide:', nextSlide);
+        return nextSlide;
+      });
+    }, 5000); // 5 seconds
+
+    console.log('Auto-slide interval set with ID:', interval);
+
+    return () => {
+      console.log('Cleaning up auto-slide interval');
+      clearInterval(interval);
+    };
+  }, [slides.length]);
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -493,10 +576,14 @@ export default function Home() {
                   <article key={item?._id || Math.random().toString()} className="bg-white shadow-sm overflow-hidden">
                     <div className="relative h-48">
                       <Image
-                        src={item?.image || '/news-placeholder.jpg'}
+                        src={item?.image || '/news-placeholder.svg'}
                         alt={item?.title || 'News'}
                         fill
                         className="object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/news-placeholder.svg';
+                        }}
                       />
                     </div>
                     <div className="p-6">

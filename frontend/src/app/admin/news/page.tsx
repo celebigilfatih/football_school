@@ -78,7 +78,7 @@ export default function AdminNews() {
           <div key={item._id} className="bg-white rounded-lg shadow overflow-hidden">
             <div className="relative h-48">
               <Image
-                src={item.image || '/news-placeholder.jpg'}
+                src={item.image || '/news-placeholder.svg'}
                 alt={item.title}
                 fill
                 className="object-cover"
@@ -137,4 +137,4 @@ export default function AdminNews() {
       )}
     </div>
   );
-} 
+}

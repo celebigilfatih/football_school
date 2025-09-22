@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const newsController = require('../controllers/news.controller');
+const { auth, isAdmin } = require('../middleware/auth');
 
-// Haber rotaları
+// Public routes
 router.get('/', newsController.getAllNews);
 router.get('/:id', newsController.getNewsById);
-router.post('/', newsController.createNews);
-router.put('/:id', newsController.updateNews);
-router.delete('/:id', newsController.deleteNews);
 
-module.exports = router; 
+// Protected routes (admin only)
+router.post('/', auth, isAdmin, newsController.createNews);
+router.put('/:id', auth, isAdmin, newsController.updateNews);
+router.delete('/:id', auth, isAdmin, newsController.deleteNews);
+
+module.exports = router;

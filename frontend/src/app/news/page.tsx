@@ -127,10 +127,14 @@ export default function NewsPage() {
                 <article key={item._id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                   <div className="relative h-48">
                     <Image
-                      src={item.image || '/news-placeholder.jpg'}
+                      src={item.image || '/news-placeholder.svg'}
                       alt={item.title}
                       fill
                       className="object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/news-placeholder.svg';
+                      }}
                     />
                   </div>
                   <div className="p-6">
@@ -162,4 +166,4 @@ export default function NewsPage() {
       <Footer />
     </div>
   );
-} 
+}
