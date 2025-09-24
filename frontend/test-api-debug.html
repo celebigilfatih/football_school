@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <div id="result"></div>
+    <script>
+        console.log('Testing API calls...');
+        
+        // Test production API
+        fetch('https://futbol.webmahsul.com.tr/api/club')
+            .then(response => {
+                console.log('Production API Response:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Production API Data:', data);
+                document.getElementById('result').innerHTML = '<h2>Production API Works!</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Production API Error:', error);
+                document.getElementById('result').innerHTML = '<h2>Production API Error:</h2><pre>' + error.toString() + '</pre>';
+            });
+    </script>
+</body>
+</html>

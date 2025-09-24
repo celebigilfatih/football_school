@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test - Production</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .result { 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+            border-left: 4px solid #007bff;
+        }
+        .success { 
+            background-color: #d4edda; 
+            border-left-color: #28a745; 
+            color: #155724; 
+        }
+        .error { 
+            background-color: #f8d7da; 
+            border-left-color: #dc3545; 
+            color: #721c24; 
+        }
+        .loading { 
+            background-color: #fff3cd; 
+            border-left-color: #ffc107; 
+            color: #856404; 
+        }
+        .info {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover { 
+            background-color: #0056b3; 
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        pre { 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 6px; 
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+        .button-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        h1 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .api-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API Debug Test - Production</h1>
+        
+        <div class="api-info">
+            <strong>API Base URL:</strong> <span id="api-url">https://futbol.webmahsul.com.tr/api</span><br>
+            <strong>Test Zamanı:</strong> <span id="test-time"></span><br>
+            <strong>Tarayıcı:</strong> <span id="browser-info"></span>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="success-count">0</div>
+                <div class="stat-label">Başarılı Test</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="error-count">0</div>
+                <div class="stat-label">Hatalı Test</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">Toplam Test</div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button onclick="testGroupsAPI()">📋 Groups API Test</button>
+            <button onclick="testClubAPI()">🏆 Club API Test</button>
+            <button onclick="testNewsAPI()">📰 News API Test</button>
+            <button onclick="testAllAPIs()">🚀 Tüm API'leri Test Et</button>
+            <button onclick="clearResults()">🗑️ Temizle</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://futbol.webmahsul.com.tr/api';
+        let successCount = 0;
+        let errorCount = 0;
+        let totalCount = 0;
+        
+        function updateStats() {
+            document.getElementById('success-count').textContent = successCount;
+            document.getElementById('error-count').textContent = errorCount;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+        
+        function addResult(message, type = 'success') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            
+            totalCount++;
+            if (type === 'success') successCount++;
+            if (type === 'error') errorCount++;
+            updateStats();
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            successCount = 0;
+            errorCount = 0;
+            totalCount = 0;
+            updateStats();
+        }
+        
+        async function testAPI(endpoint, name) {
+            const startTime = Date.now();
+            addResult(`${name} test başlatılıyor...`, 'loading');
+            
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const dataLength = Array.isArray(data) ? data.length : 1;
+                
+                addResult(`✅ ${name} Başarılı!<br>
+                    📊 Status: ${response.status}<br>
+                    ⏱️ Süre: ${duration}ms<br>
+                    📦 Veri sayısı: ${dataLength}<br>
+                    🔍 İlk veri: ${JSON.stringify(data[0] || data).substring(0, 100)}...<br>
+                    <details>
+                        <summary>Tam veri göster</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>`, 'success');
+                    
+            } catch (error) {
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                addResult(`❌ ${name} Hatası!<br>
+                    🚨 Hata: ${error.message}<br>
+                    ⏱️ Süre: ${duration}ms<br>
+                    🔍 Detay: ${error.stack ? error.stack.substring(0, 200) + '...' : 'Stack trace yok'}`, 'error');
+            }
+        }
+        
+        async function testGroupsAPI() {
+            await testAPI('/groups', 'Groups API');
+        }
+        
+        async function testClubAPI() {
+            await testAPI('/club', 'Club API');
+        }
+        
+        async function testNewsAPI() {
+            await testAPI('/news', 'News API');
+        }
+        
+        async function testAllAPIs() {
+            addResult('🚀 Tüm API testleri başlatılıyor...', 'info');
+            await testGroupsAPI();
+            await new Promise(resolve => setTimeout(resolve, 500)); // 500ms bekle
+            await testClubAPI();
+            await new Promise(resolve => setTimeout(resolve, 500)); // 500ms bekle
+            await testNewsAPI();
+            addResult('✨ Tüm API testleri tamamlandı!', 'info');
+        }
+        
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            document.getElementById('test-time').textContent = new Date().toLocaleString('tr-TR');
+            document.getElementById('browser-info').textContent = navigator.userAgent.split(' ').slice(-2).join(' ');
+            addResult('🎯 API Debug sayfası yüklendi. Testleri başlatmak için yukarıdaki butonları kullanın.', 'info');
+            
+            // Otomatik olarak club API'yi test et
+            setTimeout(() => {
+                addResult('🔄 Otomatik test başlatılıyor...', 'loading');
+                testClubAPI();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

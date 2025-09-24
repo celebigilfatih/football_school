@@ -28,11 +28,11 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://backend:5000/api/:path*', // Docker network içinde backend servisine yönlendir
+        destination: 'http://localhost:5000/api/:path*', // Local backend'e yönlendir
       },
       {
         source: '/uploads/:path*',
-        destination: 'http://backend:5000/uploads/:path*', // Upload dosyalarını da yönlendir
+        destination: 'http://localhost:5000/uploads/:path*', // Upload dosyalarını da local backend'e yönlendir
       },
     ];
   },

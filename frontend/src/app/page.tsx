@@ -11,6 +11,7 @@ import { Match, matchService } from '@/services/match.service';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Player, getAllPlayers } from '@/services/player.service';
+import { API_URL } from '@/config';
 
 // Fallback slides for when news is not available
 const fallbackSlides = [
@@ -82,7 +83,7 @@ export default function Home() {
   // Immediate news fetch
   if (news.length === 0) {
     console.log('=== STARTING IMMEDIATE NEWS FETCH ===');
-    fetch('http://localhost:5000/api/news')
+    fetch(`${API_URL}/news`)
       .then(response => {
         console.log('News fetch response status:', response.status);
         if (response.ok) {
@@ -199,7 +200,7 @@ export default function Home() {
     const fetchNewsImmediate = async () => {
       try {
         console.log('Fetching news immediately...');
-        const response = await fetch('http://localhost:5000/api/news');
+        const response = await fetch(`${API_URL}/news`);
         console.log('Fetch response status:', response.status);
         
         if (response.ok) {
@@ -359,7 +360,7 @@ export default function Home() {
                     <h2 className="text-2xl font-bold mb-2 text-white">Alt Yapı Takımlarımız</h2>
                     <p className="text-sm mb-4">Yaş gruplarına göre takımlarımız</p>
                     <Link 
-                      href="/teams"
+                      href="/groups"
                       className="inline-flex items-center text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors"
                     >
                       Detaylı Bilgi

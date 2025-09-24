@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .loading { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>API Debug Test</h1>
+    <p>Bu sayfa API bağlantısını test eder ve hataları gösterir.</p>
+    
+    <button onclick="testGroupsAPI()">Groups API Test</button>
+    <button onclick="testClubAPI()">Club API Test</button>
+    <button onclick="clearResults()">Temizle</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        
+        function addResult(message, type = 'success') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testGroupsAPI() {
+            addResult('Groups API test başlatılıyor...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_URL}/groups`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                addResult(`✅ Groups API Başarılı!<br>
+                    Status: ${response.status}<br>
+                    Grup sayısı: ${data.length}<br>
+                    İlk grup: ${data[0]?.name || 'Bulunamadı'}<br>
+                    <pre>${JSON.stringify(data[0], null, 2)}</pre>`, 'success');
+                    
+            } catch (error) {
+                addResult(`❌ Groups API Hatası!<br>
+                    Hata: ${error.message}<br>
+                    <pre>${error.stack}</pre>`, 'error');
+            }
+        }
+        
+        async function testClubAPI() {
+            addResult('Club API test başlatılıyor...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_URL}/club`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                addResult(`✅ Club API Başarılı!<br>
+                    Status: ${response.status}<br>
+                    Kulüp adı: ${data.name}<br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                    
+            } catch (error) {
+                addResult(`❌ Club API Hatası!<br>
+                    Hata: ${error.message}<br>
+                    <pre>${error.stack}</pre>`, 'error');
+            }
+        }
+        
+        // Sayfa yüklendiğinde otomatik test
+        window.onload = function() {
+            addResult('Sayfa yüklendi. API testlerini başlatmak için butonlara tıklayın.', 'loading');
+        };
+    </script>
+</body>
+</html>

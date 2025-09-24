@@ -27,6 +27,7 @@ RUN npm ci --only=production && npm cache clean --force
 # Build edilmiş uygulamayı kopyala
 COPY --from=base /app/.next ./.next
 COPY --from=base /app/public ./public
+COPY --from=base /app/src ./src
 COPY --from=base /app/next.config.* ./
 COPY --from=base /app/package.json ./package.json
 
@@ -36,6 +37,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # .next klasörünün sahipliğini değiştir
 RUN chown -R nextjs:nodejs /app/.next
+RUN chown -R nextjs:nodejs /app/src
 
 USER nextjs
 

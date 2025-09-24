@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { API_URL } from '@/config';
 
 export default function TestAPI() {
   const [result, setResult] = useState<string>('');
@@ -12,7 +13,7 @@ export default function TestAPI() {
     
     try {
       console.log('Starting direct fetch test...');
-      const response = await fetch('http://localhost:5000/api/news', {
+      const response = await fetch(`${API_URL}/news`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
