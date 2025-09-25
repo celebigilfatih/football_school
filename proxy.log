@@ -1,0 +1,4 @@
+nohup: ignoring input
+Reverse proxy server running on port 3005
+Frontend: http://localhost:3005
+API: http://localhost:3005/api
